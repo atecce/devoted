@@ -77,3 +77,41 @@ func TestExample2(t *testing.T) {
 		t.Errorf("count should be 0, got %v", n)
 	}
 }
+
+func TestExample3(t *testing.T) {
+
+	db := database{}
+	db.store = make(map[string]string)
+	db.setBuf = make(map[string]string)
+
+	var val *string
+	// var n uint
+
+	db.begin()
+
+	db.set("a", "foo")
+	val = db.get("a")
+	if val == nil || *val != "foo" {
+		t.Errorf("val should be foo, got %v", val)
+	}
+
+	db.begin()
+
+	db.set("a", "bar")
+	val = db.get("a")
+	if val == nil || *val != "bar" {
+		t.Errorf("val should be bar, got %v", val)
+	}
+
+	db.rollback()
+	val = db.get("a")
+	if val == nil || *val != "foo" {
+		t.Errorf("val should be foo, got %v", val)
+	}
+
+	db.rollback()
+	val = db.get("a")
+	if val != nil {
+		t.Errorf("val should be nil, got %v", val)
+	}
+}
