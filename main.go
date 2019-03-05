@@ -96,7 +96,13 @@ func main() {
 			case 1:
 				switch strings.ToLower(args[0]) {
 				case "rollback":
+					db.cmds = nil
+					db.tx = false
 				case "commit":
+					for _, cmd := range db.cmds {
+						db.exec(cmd)
+					}
+					db.tx = false
 				case "end":
 					os.Exit(0)
 				default:
@@ -104,11 +110,7 @@ func main() {
 				}
 			case 2:
 				switch strings.ToLower(args[0]) {
-				case "get":
-					db.cmds = append(db.cmds, args)
-				case "delete":
-					db.cmds = append(db.cmds, args)
-				case "count":
+				case "get", "delete", "count":
 					db.cmds = append(db.cmds, args)
 				default:
 					err()
@@ -127,7 +129,7 @@ func main() {
 			case 1:
 				switch strings.ToLower(args[0]) {
 				case "begin":
-				case "rollback":
+					db.tx = true
 				case "end":
 					os.Exit(0)
 				default:
