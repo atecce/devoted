@@ -105,31 +105,23 @@ func main() {
 			case 2:
 				switch strings.ToLower(args[0]) {
 				case "get":
-					// pretty.Println(db.store)
-					val := db.get(args[1])
-					if val == nil {
-						println("<nil>") // TODO this could actually be a val
-					} else {
-						fmt.Println(*val)
-					}
+					db.cmds = append(db.cmds, args)
 				case "delete":
-					db.delete(args[1])
+					db.cmds = append(db.cmds, args)
 				case "count":
-					fmt.Println(db.count(args[1]))
+					db.cmds = append(db.cmds, args)
 				default:
 					err()
 				}
 			case 3:
 				if strings.ToLower(args[0]) == "set" {
-					db.set(args[1], args[2])
-					// pretty.Println(db.store)
+					db.cmds = append(db.cmds, args)
 				} else {
 					err()
 				}
 			default:
 				err()
 			}
-
 		} else {
 			switch len(args) {
 			case 1:
