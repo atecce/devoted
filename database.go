@@ -134,17 +134,19 @@ func (db *database) rollback() {
 
 func (db *database) commit() {
 
-	if n := len(*db.txs); n != 0 {
-		tx := (*db.txs)[n-1]
+	// go backwards in time
+	for i := len(*db.txs) - 1; i >= 0; i-- {
+		tx := (*db.txs)[i]
 
+		// persist buffers to store
 		for k, v := range tx.setBuf {
 			db.store[k] = v
 		}
 		for _, k := range *tx.deleteBuf {
-			// TODO maybe drain buffer first
 			delete(db.store, k)
 		}
-	} else {
-		// no transactions
+
+		// reset transactions
+		db.txs = new([]transaction)
 	}
 }
