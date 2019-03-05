@@ -29,6 +29,10 @@ type database struct {
 type tx struct {
 }
 
+func err() {
+	println("invalid input")
+}
+
 func main() {
 
 	for {
@@ -40,17 +44,29 @@ func main() {
 		switch len(args) {
 		case 1:
 			switch strings.ToLower(args[0]) {
+			case "begin\n":
+			case "rollback\n":
 			case "end\n": // TODO maybe strip trailing newline
 				os.Exit(0)
 			default:
-				println("invalid input")
+				err()
 			}
 		case 2:
-			print(args[0], args[1])
+			switch strings.ToLower(args[0]) {
+			case "get":
+			case "delete":
+			case "count":
+			default:
+				err()
+			}
 		case 3:
-			print(args[0], args[1], args[2])
+			if strings.ToLower(args[0]) == "set" {
+
+			} else {
+				err()
+			}
 		default:
-			println("invalid input")
+			err()
 		}
 	}
 }
