@@ -141,26 +141,8 @@ func main() {
 				default:
 					err()
 				}
-			case 2:
-				switch strings.ToLower(args[0]) {
-				case "get":
-					db.exec(args)
-				case "delete":
-					db.exec(args)
-				case "count":
-					db.exec(args)
-				default:
-					err()
-				}
-			case 3:
-				if strings.ToLower(args[0]) == "set" {
-					db.exec(args)
-					// pretty.Println(db.store)
-				} else {
-					err()
-				}
 			default:
-				err()
+				db.exec(args)
 			}
 		}
 	}
