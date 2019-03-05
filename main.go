@@ -39,7 +39,36 @@ func (db database) count(val string) uint {
 	return count
 }
 
-func (db database) exec(cmd []string) error {
+func (db database) exec(args []string) error {
+	switch len(args) {
+	case 2:
+		switch strings.ToLower(args[0]) {
+		case "get":
+			// pretty.Println(db.store)
+			val := db.get(args[1])
+			if val == nil {
+				println("<nil>") // TODO this could actually be a val
+			} else {
+				fmt.Println(*val)
+			}
+		case "delete":
+			db.delete(args[1])
+		case "count":
+			fmt.Println(db.count(args[1]))
+		default:
+			err()
+		}
+	case 3:
+		if strings.ToLower(args[0]) == "set" {
+			db.set(args[1], args[2])
+			// pretty.Println(db.store)
+		} else {
+			err()
+		}
+	default:
+		err()
+	}
+
 	return nil
 }
 
@@ -62,42 +91,77 @@ func main() {
 
 		args := strings.Split(stripped, " ")
 
-		switch len(args) {
-		case 1:
-			switch strings.ToLower(args[0]) {
-			case "begin":
-			case "rollback":
-			case "end":
-				os.Exit(0)
-			default:
-				err()
-			}
-		case 2:
-			switch strings.ToLower(args[0]) {
-			case "get":
-				// pretty.Println(db.store)
-				val := db.get(args[1])
-				if val == nil {
-					println("<nil>") // TODO this could actually be a val
-				} else {
-					fmt.Println(*val)
+		if db.tx {
+			switch len(args) {
+			case 1:
+				switch strings.ToLower(args[0]) {
+				case "rollback":
+				case "commit":
+				case "end":
+					os.Exit(0)
+				default:
+					err()
 				}
-			case "delete":
-				db.delete(args[1])
-			case "count":
-				fmt.Println(db.count(args[1]))
+			case 2:
+				switch strings.ToLower(args[0]) {
+				case "get":
+					// pretty.Println(db.store)
+					val := db.get(args[1])
+					if val == nil {
+						println("<nil>") // TODO this could actually be a val
+					} else {
+						fmt.Println(*val)
+					}
+				case "delete":
+					db.delete(args[1])
+				case "count":
+					fmt.Println(db.count(args[1]))
+				default:
+					err()
+				}
+			case 3:
+				if strings.ToLower(args[0]) == "set" {
+					db.set(args[1], args[2])
+					// pretty.Println(db.store)
+				} else {
+					err()
+				}
 			default:
 				err()
 			}
-		case 3:
-			if strings.ToLower(args[0]) == "set" {
-				db.set(args[1], args[2])
-				// pretty.Println(db.store)
-			} else {
+
+		} else {
+			switch len(args) {
+			case 1:
+				switch strings.ToLower(args[0]) {
+				case "begin":
+				case "rollback":
+				case "end":
+					os.Exit(0)
+				default:
+					err()
+				}
+			case 2:
+				switch strings.ToLower(args[0]) {
+				case "get":
+					db.exec(args)
+				case "delete":
+					db.exec(args)
+				case "count":
+					db.exec(args)
+				default:
+					err()
+				}
+			case 3:
+				if strings.ToLower(args[0]) == "set" {
+					db.exec(args)
+					// pretty.Println(db.store)
+				} else {
+					err()
+				}
+			default:
 				err()
 			}
-		default:
-			err()
 		}
 	}
 }
