@@ -157,7 +157,7 @@ func (db *database) commit() {
 }
 
 // TODO usage
-func err() {
+func usage() {
 	println("invalid input")
 }
 
@@ -178,7 +178,11 @@ func main() {
 	for {
 
 		print(">> ")
-		in, _ := r.ReadString('\n')
+		in, err := r.ReadString('\n')
+		if err != nil {
+			println("failed to read string. quitting")
+			os.Exit(1)
+		}
 
 		stripped := strings.TrimSuffix(in, "\n")
 
@@ -201,7 +205,7 @@ func main() {
 			case "end":
 				os.Exit(0)
 			default:
-				err()
+				usage()
 			}
 		case 2:
 			switch strings.ToLower(args[0]) {
@@ -217,16 +221,16 @@ func main() {
 			case "count":
 				fmt.Println(db.count(args[1]))
 			default:
-				err()
+				usage()
 			}
 		case 3:
 			if strings.ToLower(args[0]) == "set" {
 				db.set(args[1], args[2])
 			} else {
-				err()
+				usage()
 			}
 		default:
-			err()
+			usage()
 		}
 
 		// TODO add debug flag
