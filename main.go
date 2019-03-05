@@ -2,60 +2,45 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 )
 
-type db interface {
-	set(name, val string) error
-	get(name string) (val string, err error)
-	delete(name string) (val string, err error) // TODO maybe just return err?
-	count(val string) (count uint, err error)
-
-	end() error
-
-	begin() error
-	rollback() error
-	commit() error
-}
-
 type database struct {
 	store map[string]string
 
-	buf map[string]string
-	txs []tx
+	tx   bool
+	cmds [][]string
 }
 
-func (db database) get(name string) (*string, error) {
+func (db database) get(name string) *string {
 	if val, ok := db.store[name]; ok {
-		return &val, nil
+		return &val
 	}
-	return nil, errors.New("not found")
+	return nil
 }
 
-func (db database) set(name, val string) error {
+func (db database) set(name, val string) {
 	db.store[name] = val
-	return nil
 }
 
-func (db database) delete(name string) error {
+func (db database) delete(name string) {
 	delete(db.store, name)
-	return nil
 }
 
-func (db database) count(val string) (uint, error) {
+func (db database) count(val string) uint {
 	var count uint
 	for _, value := range db.store {
 		if val == value {
 			count++
 		}
 	}
-	return count, nil
+	return count
 }
 
-type tx struct {
+func (db database) exec(cmd []string) error {
+	return nil
 }
 
 // TODO usage
@@ -82,7 +67,7 @@ func main() {
 			switch strings.ToLower(args[0]) {
 			case "begin":
 			case "rollback":
-			case "end": // TODO maybe strip trailing newline
+			case "end":
 				os.Exit(0)
 			default:
 				err()
@@ -91,30 +76,22 @@ func main() {
 			switch strings.ToLower(args[0]) {
 			case "get":
 				// pretty.Println(db.store)
-				val, err := db.get(args[1])
-				if err != nil {
+				val := db.get(args[1])
+				if val == nil {
 					println("<nil>") // TODO this could actually be a val
 				} else {
-					fmt.Println(*val) // TODO could this be nil?
+					fmt.Println(*val)
 				}
 			case "delete":
-				if err := db.delete(args[1]); err != nil {
-					println("this shouldn't happen")
-				}
+				db.delete(args[1])
 			case "count":
-				n, err := db.count(args[1])
-				if err != nil {
-					println("this shouldn't happen")
-				}
-				fmt.Println(n)
+				fmt.Println(db.count(args[1]))
 			default:
 				err()
 			}
 		case 3:
 			if strings.ToLower(args[0]) == "set" {
-				if err := db.set(args[1], args[2]); err != nil {
-					println("this shouldn't happen")
-				}
+				db.set(args[1], args[2])
 				// pretty.Println(db.store)
 			} else {
 				err()
