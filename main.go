@@ -184,9 +184,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		stripped := strings.TrimSuffix(in, "\n")
-
-		args := strings.Split(stripped, " ")
+		args := strings.Split(strings.TrimSuffix(in, "\n"), " ")
 
 		// TODO add debug flag
 		// println()
