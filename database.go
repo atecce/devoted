@@ -128,7 +128,7 @@ func (db *database) rollback() {
 	if n := len(*db.txs); n > 0 {
 		*db.txs = (*db.txs)[:n-1]
 	} else {
-		// no transactions
+		println("no transactions to rollback")
 	}
 }
 
