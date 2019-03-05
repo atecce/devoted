@@ -215,12 +215,7 @@ func main() {
 		case 2:
 			switch strings.ToLower(args[0]) {
 			case "get":
-				val := db.get(args[1])
-				if val == nil {
-					println("<nil>") // TODO this could actually be a val
-				} else {
-					fmt.Println(*val)
-				}
+				fmt.Println(db.get(args[1]))
 			case "delete":
 				db.delete(args[1])
 			case "count":
