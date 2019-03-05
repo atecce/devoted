@@ -6,9 +6,9 @@ import (
 
 func TestExample1(t *testing.T) {
 
-	db := database{}
-	db.store = make(map[string]string)
-	db.setBuf = make(map[string]string)
+	db := database{
+		store: make(map[string]string),
+	}
 
 	var val *string
 	var n uint
@@ -47,9 +47,9 @@ func TestExample1(t *testing.T) {
 
 func TestExample2(t *testing.T) {
 
-	db := database{}
-	db.store = make(map[string]string)
-	db.setBuf = make(map[string]string)
+	db := database{
+		store: make(map[string]string),
+	}
 
 	var val *string
 	var n uint
@@ -80,9 +80,9 @@ func TestExample2(t *testing.T) {
 
 func TestExample3(t *testing.T) {
 
-	db := database{}
-	db.store = make(map[string]string)
-	db.setBuf = make(map[string]string)
+	db := database{
+		store: make(map[string]string),
+	}
 
 	var val *string
 	// var n uint
@@ -118,9 +118,9 @@ func TestExample3(t *testing.T) {
 
 func TestExample4(t *testing.T) {
 
-	db := database{}
-	db.store = make(map[string]string)
-	db.setBuf = make(map[string]string)
+	db := database{
+		store: make(map[string]string),
+	}
 
 	var val *string
 	var n uint
