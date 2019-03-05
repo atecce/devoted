@@ -39,6 +39,11 @@ func (db database) set(name, val string) error {
 	return nil
 }
 
+func (db database) delete(name string) error {
+	delete(db.store, name)
+	return nil
+}
+
 type tx struct {
 }
 
@@ -52,8 +57,9 @@ func main() {
 	db := database{}
 	db.store = make(map[string]string)
 
+	r := bufio.NewReader(os.Stdin)
+
 	for {
-		r := bufio.NewReader(os.Stdin)
 		in, _ := r.ReadString('\n')
 
 		stripped := strings.TrimSuffix(in, "\n")
@@ -81,6 +87,9 @@ func main() {
 					os.Stdout.Write([]byte(*val + "\n")) // TODO could be nil?
 				}
 			case "delete":
+				if err := db.delete(args[1]); err != nil {
+					println("this shouldn't happen")
+				}
 			case "count":
 			default:
 				err()
