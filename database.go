@@ -20,10 +20,9 @@ func newDatabase() database {
 
 func (db *database) get(name string) *string {
 
-	txsLen := len(*db.txs)
-	if txsLen != 0 {
-
-		tx := (*db.txs)[txsLen-1]
+	// go backwards in time
+	for i := len(*db.txs) - 1; i >= 0; i-- {
+		tx := (*db.txs)[i]
 
 		// check if we deleted it in this tx
 		for _, delName := range *tx.deleteBuf {
@@ -36,9 +35,9 @@ func (db *database) get(name string) *string {
 		if val, ok := tx.setBuf[name]; ok {
 			return &val
 		}
-
 	}
 
+	// check the "persisted" store
 	if val, ok := db.store[name]; ok {
 		return &val
 	}
@@ -47,10 +46,9 @@ func (db *database) get(name string) *string {
 }
 
 func (db *database) set(name, val string) {
-
-	txsLen := len(*db.txs)
-	if txsLen != 0 {
-		tx := (*db.txs)[txsLen-1]
+	n := len(*db.txs)
+	if n != 0 {
+		tx := (*db.txs)[n-1]
 		tx.setBuf[name] = val
 	} else {
 		db.store[name] = val
@@ -59,11 +57,8 @@ func (db *database) set(name, val string) {
 
 func (db *database) delete(name string) {
 
-	// TODO no-op proper semantics when name doesn't exist?
-
-	txsLen := len(*db.txs)
-	if txsLen != 0 {
-		tx := (*db.txs)[txsLen-1]
+	if n := len(*db.txs); n != 0 {
+		tx := (*db.txs)[n-1]
 
 		// check if we set the key in this transaction
 		if _, ok := tx.setBuf[name]; ok {
@@ -81,43 +76,45 @@ func (db *database) delete(name string) {
 
 func (db *database) count(val string) uint {
 
-	var count uint
+	var n uint
 
 	// go backwards in time
-	var futureDeletedNames []string
+	var futureDeletes []string
 	for i := len(*db.txs) - 1; i >= 0; i-- {
 
 		tx := (*db.txs)[i]
 
-		// save future deleted names
-		futureDeletedNames = append(futureDeletedNames, *tx.deleteBuf...)
+		// remember future deletes
+		futureDeletes = append(futureDeletes, *tx.deleteBuf...)
 
-		for name, value := range tx.setBuf {
-			if value == val {
+		for k, v := range tx.setBuf {
+			if v == val {
+
 				// if we are going to delete this name in the future
 				// don't count it
-				if contains(futureDeletedNames, name) {
+				if contains(futureDeletes, k) {
 					continue
 				}
 
-				count++
+				n++
 			}
 		}
 	}
 
-	for name, value := range db.store {
-		if val == value {
+	for k, v := range db.store {
+		if val == v {
+
 			// if we are going to delete this name in the future
 			// don't count it
-			if contains(futureDeletedNames, name) {
+			if contains(futureDeletes, k) {
 				continue
 			}
 
-			count++
+			n++
 		}
 	}
 
-	return count
+	return n
 }
 
 func (db *database) begin() {
@@ -128,9 +125,8 @@ func (db *database) begin() {
 }
 
 func (db *database) rollback() {
-	txsLen := len(*db.txs)
-	if txsLen > 0 {
-		*db.txs = (*db.txs)[:txsLen-1]
+	if n := len(*db.txs); n > 0 {
+		*db.txs = (*db.txs)[:n-1]
 	} else {
 		// no transactions
 	}
@@ -138,16 +134,15 @@ func (db *database) rollback() {
 
 func (db *database) commit() {
 
-	txsLen := len(*db.txs)
-	if txsLen != 0 {
-		tx := (*db.txs)[txsLen-1]
+	if n := len(*db.txs); n != 0 {
+		tx := (*db.txs)[n-1]
 
-		for name, val := range tx.setBuf {
-			db.store[name] = val
+		for k, v := range tx.setBuf {
+			db.store[k] = v
 		}
-		for _, name := range *tx.deleteBuf {
+		for _, k := range *tx.deleteBuf {
 			// TODO maybe drain buffer first
-			delete(db.store, name)
+			delete(db.store, k)
 		}
 	} else {
 		// no transactions
