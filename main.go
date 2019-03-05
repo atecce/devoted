@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
 type db interface {
@@ -32,7 +33,19 @@ func main() {
 
 	for {
 		r := bufio.NewReader(os.Stdin)
-		txt, _ := r.ReadString('\n')
-		print(txt)
+		in, _ := r.ReadString('\n')
+
+		args := strings.Split(in, " ")
+
+		switch len(args) {
+		case 1:
+			print(args[0])
+		case 2:
+			print(args[0], args[1])
+		case 3:
+			print(args[0], args[1], args[2])
+		default:
+			print("invalid input")
+		}
 	}
 }
