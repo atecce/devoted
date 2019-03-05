@@ -22,9 +22,6 @@ type transaction struct {
 
 func (db *database) get(name string) *string {
 
-	// TODO maybe dedup. but rn it clearly
-	// .    bifurcates the cases
-
 	txsLen := len(*db.txs)
 	if txsLen != 0 {
 
@@ -42,14 +39,10 @@ func (db *database) get(name string) *string {
 			return &val
 		}
 
-		if val, ok := db.store[name]; ok {
-			return &val
-		}
+	}
 
-	} else {
-		if val, ok := db.store[name]; ok {
-			return &val
-		}
+	if val, ok := db.store[name]; ok {
+		return &val
 	}
 
 	return nil
