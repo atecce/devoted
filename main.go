@@ -39,13 +39,18 @@ func main() {
 
 		switch len(args) {
 		case 1:
-			print(args[0])
+			switch strings.ToLower(args[0]) {
+			case "end\n": // TODO maybe strip trailing newline
+				os.Exit(0)
+			default:
+				println("invalid input")
+			}
 		case 2:
 			print(args[0], args[1])
 		case 3:
 			print(args[0], args[1], args[2])
 		default:
-			print("invalid input")
+			println("invalid input")
 		}
 	}
 }
