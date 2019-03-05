@@ -142,12 +142,14 @@ func TestExample4(t *testing.T) {
 	}
 
 	db.begin()
+
 	n = db.count("bar")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
 	db.delete("a")
+
 	val = db.get("a")
 	if val != nil {
 		t.Errorf("val should be nil, got %v", *val)

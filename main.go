@@ -18,7 +18,7 @@ type database struct {
 
 type transaction struct {
 	setBuf    map[string]string
-	deleteBuf []string
+	deleteBuf *[]string
 }
 
 func (db *database) get(name string) *string {
@@ -32,7 +32,7 @@ func (db *database) get(name string) *string {
 		tx := db.txs[txsLen-1]
 
 		// check if we deleted it in this tx
-		for _, delName := range tx.deleteBuf {
+		for _, delName := range *tx.deleteBuf {
 			if name == delName {
 				return nil
 			}
@@ -82,7 +82,7 @@ func (db *database) delete(name string) {
 		}
 
 		// otherwise queue up a delete
-		tx.deleteBuf = append(tx.deleteBuf, name)
+		*tx.deleteBuf = append(*tx.deleteBuf, name)
 
 	} else {
 		delete(db.store, name)
@@ -108,7 +108,7 @@ func (db *database) count(val string) uint {
 
 				// if we are about to delete this name
 				// don't count it
-				if contains(tx.deleteBuf, name) {
+				if contains(*tx.deleteBuf, name) {
 					continue
 				}
 
@@ -128,7 +128,8 @@ func (db *database) count(val string) uint {
 
 func (db *database) begin() {
 	db.txs = append(db.txs, transaction{
-		setBuf: make(map[string]string),
+		setBuf:    make(map[string]string),
+		deleteBuf: new([]string),
 	})
 }
 
@@ -150,7 +151,7 @@ func (db *database) commit() {
 		for name, val := range tx.setBuf {
 			db.store[name] = val
 		}
-		for _, name := range tx.deleteBuf {
+		for _, name := range *tx.deleteBuf {
 			// TODO maybe drain buffer first
 			delete(db.store, name)
 		}
