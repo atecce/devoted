@@ -26,10 +26,7 @@ func main() {
 
 	flag.Parse()
 
-	db := database{
-		store: make(map[string]string),
-		txs:   new([]transaction),
-	}
+	db := newDatabase()
 
 	r := bufio.NewReader(os.Stdin)
 

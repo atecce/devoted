@@ -11,6 +11,13 @@ type transaction struct {
 	deleteBuf *[]string
 }
 
+func newDatabase() database {
+	return database{
+		store: make(map[string]string),
+		txs:   new([]transaction),
+	}
+}
+
 func (db *database) get(name string) *string {
 
 	txsLen := len(*db.txs)

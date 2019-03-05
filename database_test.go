@@ -6,10 +6,7 @@ import (
 
 func TestExample1(t *testing.T) {
 
-	db := database{
-		store: make(map[string]string),
-		txs:   new([]transaction),
-	}
+	db := newDatabase()
 
 	var val *string
 	var n uint
@@ -48,10 +45,7 @@ func TestExample1(t *testing.T) {
 
 func TestExample2(t *testing.T) {
 
-	db := database{
-		store: make(map[string]string),
-		txs:   new([]transaction),
-	}
+	db := newDatabase()
 
 	var val *string
 	var n uint
@@ -82,13 +76,9 @@ func TestExample2(t *testing.T) {
 
 func TestExample3(t *testing.T) {
 
-	db := database{
-		store: make(map[string]string),
-		txs:   new([]transaction),
-	}
+	db := newDatabase()
 
 	var val *string
-	// var n uint
 
 	db.begin()
 
@@ -121,10 +111,7 @@ func TestExample3(t *testing.T) {
 
 func TestExample4(t *testing.T) {
 
-	db := database{
-		store: make(map[string]string),
-		txs:   new([]transaction),
-	}
+	db := newDatabase()
 
 	var val *string
 	var n uint
