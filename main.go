@@ -12,8 +12,7 @@ import (
 type database struct {
 	store map[string]string
 
-	txs []transaction
-	// tx        bool
+	txs *[]transaction
 }
 
 type transaction struct {
@@ -26,10 +25,10 @@ func (db *database) get(name string) *string {
 	// TODO maybe dedup. but rn it clearly
 	// .    bifurcates the cases
 
-	txsLen := len(db.txs)
+	txsLen := len(*db.txs)
 	if txsLen != 0 {
 
-		tx := db.txs[txsLen-1]
+		tx := (*db.txs)[txsLen-1]
 
 		// check if we deleted it in this tx
 		for _, delName := range *tx.deleteBuf {
@@ -58,9 +57,9 @@ func (db *database) get(name string) *string {
 
 func (db *database) set(name, val string) {
 
-	txsLen := len(db.txs)
+	txsLen := len(*db.txs)
 	if txsLen != 0 {
-		tx := db.txs[txsLen-1]
+		tx := (*db.txs)[txsLen-1]
 		tx.setBuf[name] = val
 	} else {
 		db.store[name] = val
@@ -71,9 +70,9 @@ func (db *database) delete(name string) {
 
 	// TODO no-op proper semantics when name doesn't exist?
 
-	txsLen := len(db.txs)
+	txsLen := len(*db.txs)
 	if txsLen != 0 {
-		tx := db.txs[txsLen-1]
+		tx := (*db.txs)[txsLen-1]
 
 		// check if we set the key in this transaction
 		if _, ok := tx.setBuf[name]; ok {
@@ -93,50 +92,54 @@ func (db *database) count(val string) uint {
 
 	var count uint
 
-	txsLen := len(db.txs)
-	if txsLen != 0 {
-		tx := db.txs[txsLen-1]
+	// go backwards in time
+	var futureDeletedNames []string
+	for i := len(*db.txs) - 1; i >= 0; i-- {
 
-		for _, value := range tx.setBuf {
+		tx := (*db.txs)[i]
+
+		// save future deleted names
+		futureDeletedNames = append(futureDeletedNames, *tx.deleteBuf...)
+
+		for name, value := range tx.setBuf {
 			if value == val {
-				count++
-			}
-		}
-
-		for name, value := range db.store {
-			if value == val {
-
-				// if we are about to delete this name
+				// if we are going to delete this name in the future
 				// don't count it
-				if contains(*tx.deleteBuf, name) {
+				if contains(futureDeletedNames, name) {
 					continue
 				}
 
 				count++
 			}
 		}
+	}
 
-	} else {
-		for _, value := range db.store {
-			if val == value {
-				count++
+	for name, value := range db.store {
+		if val == value {
+			// if we are going to delete this name in the future
+			// don't count it
+			if contains(futureDeletedNames, name) {
+				continue
 			}
+
+			count++
 		}
 	}
+
 	return count
 }
 
 func (db *database) begin() {
-	db.txs = append(db.txs, transaction{
+	*db.txs = append(*db.txs, transaction{
 		setBuf:    make(map[string]string),
 		deleteBuf: new([]string),
 	})
 }
 
 func (db *database) rollback() {
-	txsLen := len(db.txs)
+	txsLen := len(*db.txs)
 	if txsLen > 0 {
-		db.txs = db.txs[:txsLen-1]
+		*db.txs = (*db.txs)[:txsLen-1]
 	} else {
 		// no transactions
 	}
@@ -144,9 +147,9 @@ func (db *database) rollback() {
 
 func (db *database) commit() {
 
-	txsLen := len(db.txs)
+	txsLen := len(*db.txs)
 	if txsLen != 0 {
-		tx := db.txs[txsLen-1]
+		tx := (*db.txs)[txsLen-1]
 
 		for name, val := range tx.setBuf {
 			db.store[name] = val
@@ -174,6 +177,7 @@ func main() {
 
 	db := database{
 		store: make(map[string]string),
+		txs:   new([]transaction),
 	}
 
 	r := bufio.NewReader(os.Stdin)

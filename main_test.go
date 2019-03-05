@@ -8,6 +8,7 @@ func TestExample1(t *testing.T) {
 
 	db := database{
 		store: make(map[string]string),
+		txs:   new([]transaction),
 	}
 
 	var val *string
@@ -49,6 +50,7 @@ func TestExample2(t *testing.T) {
 
 	db := database{
 		store: make(map[string]string),
+		txs:   new([]transaction),
 	}
 
 	var val *string
@@ -82,6 +84,7 @@ func TestExample3(t *testing.T) {
 
 	db := database{
 		store: make(map[string]string),
+		txs:   new([]transaction),
 	}
 
 	var val *string
@@ -120,6 +123,7 @@ func TestExample4(t *testing.T) {
 
 	db := database{
 		store: make(map[string]string),
+		txs:   new([]transaction),
 	}
 
 	var val *string
@@ -157,10 +161,11 @@ func TestExample4(t *testing.T) {
 
 	n = db.count("bar")
 	if n != 0 {
-		t.Errorf("count should be 0, got %v", n)
+		t.Errorf(`db.count("bar") should be 0, got %v`, n)
 	}
 
 	db.rollback()
+
 	val = db.get("a")
 	if val == nil || *val != "bar" {
 		t.Errorf("val should be bar, got %v", *val)
