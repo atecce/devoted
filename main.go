@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -42,6 +43,16 @@ func (db database) set(name, val string) error {
 func (db database) delete(name string) error {
 	delete(db.store, name)
 	return nil
+}
+
+func (db database) count(val string) (uint, error) {
+	var count uint
+	for _, value := range db.store {
+		if val == value {
+			count++
+		}
+	}
+	return count, nil
 }
 
 type tx struct {
@@ -84,13 +95,18 @@ func main() {
 				if err != nil {
 					println("<nil>") // TODO this could actually be a val
 				} else {
-					os.Stdout.Write([]byte(*val + "\n")) // TODO could be nil?
+					fmt.Println(*val) // TODO could this be nil?
 				}
 			case "delete":
 				if err := db.delete(args[1]); err != nil {
 					println("this shouldn't happen")
 				}
 			case "count":
+				n, err := db.count(args[1])
+				if err != nil {
+					println("this shouldn't happen")
+				}
+				fmt.Println(n)
 			default:
 				err()
 			}
