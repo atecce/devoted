@@ -176,6 +176,8 @@ func main() {
 	r := bufio.NewReader(os.Stdin)
 
 	for {
+
+		print(">> ")
 		in, _ := r.ReadString('\n')
 
 		stripped := strings.TrimSuffix(in, "\n")
