@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -166,7 +167,11 @@ func debug(db database) {
 	pretty.Println("txs:", db.txs)
 }
 
+var dbg = flag.Bool("debug", false, "pretty print debug output")
+
 func main() {
+
+	flag.Parse()
 
 	db := database{
 		store: make(map[string]string),
@@ -186,10 +191,12 @@ func main() {
 
 		args := strings.Split(strings.TrimSuffix(in, "\n"), " ")
 
-		// TODO add debug flag
-		// println()
-		// println("before...")
-		// debug(db)
+		if *dbg {
+			println()
+			println("before...")
+			debug(db)
+			println()
+		}
 
 		switch len(args) {
 		case 1:
@@ -231,12 +238,12 @@ func main() {
 			usage()
 		}
 
-		// TODO add debug flag
-		// println()
-		// println("after...")
-		// debug(db)
-
-		// println()
+		if *dbg {
+			println()
+			println("after...")
+			debug(db)
+			println()
+		}
 	}
 }
 
