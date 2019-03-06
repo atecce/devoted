@@ -46,12 +46,13 @@ func (db *database) get(name string) *string {
 }
 
 func (db *database) set(name, val string) {
-	n := len(*db.txs)
-	if n != 0 {
+	if n := len(*db.txs); n == 0 {
+		// if there are no transactions, set in the store
+		db.store[name] = val
+	} else {
+		// otherwise set in the most recent buffer
 		tx := (*db.txs)[n-1]
 		tx.setBuf[name] = val
-	} else {
-		db.store[name] = val
 	}
 }
 
@@ -130,10 +131,10 @@ func (db *database) begin() {
 }
 
 func (db *database) rollback() {
-	if n := len(*db.txs); n > 0 {
-		*db.txs = (*db.txs)[:n-1]
-	} else {
+	if n := len(*db.txs); n == 0 {
 		println("no transactions to rollback")
+	} else {
+		*db.txs = (*db.txs)[:n-1]
 	}
 }
 
