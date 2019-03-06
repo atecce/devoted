@@ -53,5 +53,5 @@ func main() {
 		return c.String(http.StatusOK, "OK")
 	})
 
-	e.Start(":8080")
+	e.StartTLS(":443", "/etc/devoted/server.crt", "/etc/devoted/server.key")
 }
