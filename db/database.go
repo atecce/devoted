@@ -1,6 +1,8 @@
-package main
+package db
 
-type database struct {
+import "github.com/kr/pretty"
+
+type Database struct {
 	store map[string]string
 
 	txs *[]transaction
@@ -11,14 +13,14 @@ type transaction struct {
 	deleteBuf *[]string
 }
 
-func newDatabase() database {
-	return database{
+func NewDatabase() Database {
+	return Database{
 		store: make(map[string]string),
 		txs:   new([]transaction),
 	}
 }
 
-func (db *database) get(name string) *string {
+func (db *Database) Get(name string) *string {
 
 	// go backwards in time
 	for i := len(*db.txs) - 1; i >= 0; i-- {
@@ -45,7 +47,7 @@ func (db *database) get(name string) *string {
 	return nil
 }
 
-func (db *database) set(name, val string) {
+func (db *Database) Set(name, val string) {
 	if n := len(*db.txs); n == 0 {
 		// if there are no transactions, set in the store
 		db.store[name] = val
@@ -56,7 +58,7 @@ func (db *database) set(name, val string) {
 	}
 }
 
-func (db *database) delete(name string) {
+func (db *Database) Delete(name string) {
 
 	if n := len(*db.txs); n != 0 {
 		tx := (*db.txs)[n-1]
@@ -75,7 +77,7 @@ func (db *database) delete(name string) {
 	}
 }
 
-func (db *database) count(val string) uint {
+func (db *Database) Count(val string) uint {
 
 	var n uint
 
@@ -123,14 +125,14 @@ func contains(strs []string, val string) bool {
 	return false
 }
 
-func (db *database) begin() {
+func (db *Database) Begin() {
 	*db.txs = append(*db.txs, transaction{
 		setBuf:    make(map[string]string),
 		deleteBuf: new([]string),
 	})
 }
 
-func (db *database) rollback() {
+func (db *Database) Rollback() {
 	if n := len(*db.txs); n == 0 {
 		println("no transactions to rollback")
 	} else {
@@ -138,7 +140,7 @@ func (db *database) rollback() {
 	}
 }
 
-func (db *database) commit() {
+func (db *Database) Commit() {
 
 	// go backwards in time
 	for i := len(*db.txs) - 1; i >= 0; i-- {
@@ -155,4 +157,9 @@ func (db *database) commit() {
 		// reset transactions
 		db.txs = new([]transaction)
 	}
+}
+
+func (db *Database) Debug() {
+	pretty.Println("store:", db.store)
+	pretty.Println("txs:", db.txs)
 }

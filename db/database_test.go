@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"testing"
@@ -6,38 +6,38 @@ import (
 
 func TestExample1(t *testing.T) {
 
-	db := newDatabase()
+	db := NewDatabase()
 
 	var val *string
 	var n uint
 
-	val = db.get("foo")
+	val = db.Get("foo")
 	if val != nil {
 		t.Errorf("value should be nil, got %v", val)
 	}
 
-	db.set("a", "foo")
-	db.set("b", "foo")
-	n = db.count("foo")
+	db.Set("a", "foo")
+	db.Set("b", "foo")
+	n = db.Count("foo")
 	if n != 2 {
 		t.Errorf("count should be 2, got %v", n)
 	}
 
-	n = db.count("bar")
+	n = db.Count("bar")
 	if n != 0 {
 		t.Errorf("count should be 0, got %v", n)
 	}
 
-	db.delete("a")
+	db.Delete("a")
 
-	n = db.count("foo")
+	n = db.Count("foo")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
-	db.set("b", "baz")
+	db.Set("b", "baz")
 
-	val = db.get("B")
+	val = db.Get("B")
 	if val != nil {
 		t.Errorf("value should be nil, got %v", val)
 	}
@@ -45,30 +45,30 @@ func TestExample1(t *testing.T) {
 
 func TestExample2(t *testing.T) {
 
-	db := newDatabase()
+	db := NewDatabase()
 
 	var val *string
 	var n uint
 
-	db.set("a", "foo")
-	db.set("a", "foo")
-	n = db.count("foo")
+	db.Set("a", "foo")
+	db.Set("a", "foo")
+	n = db.Count("foo")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
-	val = db.get("a")
+	val = db.Get("a")
 	if val == nil || *val != "foo" {
 		t.Errorf("val should be foo, got %v", val)
 	}
 
-	db.delete("a")
-	val = db.get("a")
+	db.Delete("a")
+	val = db.Get("a")
 	if val != nil {
 		t.Errorf("val should be nil, got %v", val)
 	}
 
-	n = db.count("foo")
+	n = db.Count("foo")
 	if n != 0 {
 		t.Errorf("count should be 0, got %v", n)
 	}
@@ -76,34 +76,34 @@ func TestExample2(t *testing.T) {
 
 func TestExample3(t *testing.T) {
 
-	db := newDatabase()
+	db := NewDatabase()
 
 	var val *string
 
-	db.begin()
+	db.Begin()
 
-	db.set("a", "foo")
-	val = db.get("a")
+	db.Set("a", "foo")
+	val = db.Get("a")
 	if val == nil || *val != "foo" {
 		t.Errorf("val should be foo, got %v", val)
 	}
 
-	db.begin()
+	db.Begin()
 
-	db.set("a", "bar")
-	val = db.get("a")
+	db.Set("a", "bar")
+	val = db.Get("a")
 	if val == nil || *val != "bar" {
 		t.Errorf("val should be bar, got %v", val)
 	}
 
-	db.rollback()
-	val = db.get("a")
+	db.Rollback()
+	val = db.Get("a")
 	if val == nil || *val != "foo" {
 		t.Errorf("val should be foo, got %v", val)
 	}
 
-	db.rollback()
-	val = db.get("a")
+	db.Rollback()
+	val = db.Get("a")
 	if val != nil {
 		t.Errorf("val should be nil, got %v", val)
 	}
@@ -111,66 +111,66 @@ func TestExample3(t *testing.T) {
 
 func TestExample4(t *testing.T) {
 
-	db := newDatabase()
+	db := NewDatabase()
 
 	var val *string
 	var n uint
 
-	db.set("a", "foo")
-	db.set("b", "baz")
+	db.Set("a", "foo")
+	db.Set("b", "baz")
 
-	db.begin()
+	db.Begin()
 
-	val = db.get("a")
+	val = db.Get("a")
 	if val == nil || *val != "foo" {
 		t.Errorf("val should be foo, got %v", val)
 	}
 
-	db.set("a", "bar")
-	n = db.count("bar")
+	db.Set("a", "bar")
+	n = db.Count("bar")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
-	db.begin()
+	db.Begin()
 
-	n = db.count("bar")
+	n = db.Count("bar")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
-	db.delete("a")
+	db.Delete("a")
 
-	val = db.get("a")
+	val = db.Get("a")
 	if val != nil {
 		t.Errorf("val should be nil, got %v", *val)
 	}
 
-	n = db.count("bar")
+	n = db.Count("bar")
 	if n != 0 {
 		t.Errorf(`db.count("bar") should be 0, got %v`, n)
 	}
 
-	db.rollback()
+	db.Rollback()
 
-	val = db.get("a")
+	val = db.Get("a")
 	if val == nil || *val != "bar" {
 		t.Errorf("val should be bar, got %v", *val)
 	}
 
-	n = db.count("bar")
+	n = db.Count("bar")
 	if n != 1 {
 		t.Errorf("count should be 1, got %v", n)
 	}
 
-	db.commit()
+	db.Commit()
 
-	val = db.get("a")
+	val = db.Get("a")
 	if val == nil || *val != "bar" {
 		t.Errorf("val should be bar, got %v", *val)
 	}
 
-	val = db.get("b")
+	val = db.Get("b")
 	if val == nil || *val != "baz" {
 		t.Errorf("val should be baz, got %v", *val)
 	}
