@@ -96,12 +96,3 @@ func main() {
 		}
 	}
 }
-
-func contains(strs []string, val string) bool {
-	for _, str := range strs {
-		if str == val {
-			return true
-		}
-	}
-	return false
-}

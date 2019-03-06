@@ -87,34 +87,39 @@ func (db *database) count(val string) uint {
 		// remember future deletes
 		futureDeletes = append(futureDeletes, *tx.deleteBuf...)
 
-		for k, v := range tx.setBuf {
-			if v == val {
-
-				// if we are going to delete this name in the future
-				// don't count it
-				if contains(futureDeletes, k) {
-					continue
-				}
-
-				n++
-			}
-		}
+		n += count(val, tx.setBuf, futureDeletes)
 	}
 
-	for k, v := range db.store {
+	n += count(val, db.store, futureDeletes)
+
+	return n
+}
+
+func count(val string, m map[string]string, skip []string) uint {
+	var n uint
+
+	for k, v := range m {
 		if val == v {
 
 			// if we are going to delete this name in the future
 			// don't count it
-			if contains(futureDeletes, k) {
+			if contains(skip, k) {
 				continue
 			}
 
 			n++
 		}
 	}
-
 	return n
+}
+
+func contains(strs []string, val string) bool {
+	for _, str := range strs {
+		if str == val {
+			return true
+		}
+	}
+	return false
 }
 
 func (db *database) begin() {
