@@ -16,6 +16,18 @@ func main() {
 
 	db := db.NewDatabase()
 
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{
+			"GET /:name":              "db.Get",
+			"PUT /:name?value=:value": "db.Set",
+			"DELETE /:name":           "db.Delete",
+			"GET /count?value=:value": "db.Count",
+			"POST /begin":             "db.Begin",
+			"POST /rollback":          "db.Rollback",
+			"POST /commit":            "db.Commit",
+		})
+	})
+
 	e.GET("/:name", func(c echo.Context) error {
 		if val := db.Get(c.Param("name")); val == nil {
 			return c.String(http.StatusNotFound, "not found")
