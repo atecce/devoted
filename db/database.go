@@ -153,10 +153,10 @@ func (db *Database) Commit() {
 		for _, k := range *tx.deleteBuf {
 			delete(db.store, k)
 		}
-
-		// reset transactions
-		db.txs = new([]transaction)
 	}
+
+	// reset transactions
+	db.txs = new([]transaction)
 }
 
 func (db *Database) Debug() {
